@@ -10,6 +10,7 @@ const styles = theme => ({
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         backgroundColor: "#cccccc",
+        borderRadius: "0px",
         //filter: "blur(8px)",    
     },
     loginPaper: {
