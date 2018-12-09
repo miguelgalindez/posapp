@@ -1,13 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import LoginPage from "./components/login"
+import { BrowserRouter } from "react-router-dom";
+import Login from "./components/login"
+import { CssBaseline } from "@material-ui/core";
 
-
-class App extends Component {  
-  render() {    
+class App extends Component {
+  render() {
     return (
-      <Fragment>
-        <LoginPage />
-      </Fragment>
+      <BrowserRouter>
+        <Fragment>
+          <CssBaseline />
+          <Login />
+        </Fragment>
+      </BrowserRouter>
     );
   }
 }

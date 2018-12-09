@@ -1,13 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core"
-import { teal, red } from "@material-ui/core/colors"
+import { red, white } from "@material-ui/core/colors"
 
 const theme = createMuiTheme({
     palette: {
-        primary: teal,
+        primary: white,
         secondary: red,
         type: "dark"
     },
@@ -15,6 +14,8 @@ const theme = createMuiTheme({
         useNextVariants: true,
     }
 })
+
+console.log("[src/index.js]: theme", theme)
 
 ReactDOM.render(
     <MuiThemeProvider theme={theme}>
