@@ -1,6 +1,6 @@
 export default theme=>({
     container: {
-        backgroundColor: "transparent",
+        backgroundColor: "transparent",        
         boxShadow: "none",
         display: "flex",
         flexWrap: "wrap",

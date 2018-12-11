@@ -15,7 +15,7 @@ const styles = theme => ({
         flexGrow: 1,
         flexShrink: 1,
         backgroundColor: "white",
-        height: "1px",               
+        height: "1vh",               
     },
     headerText: {
         marginLeft: theme.spacing.unit*2,

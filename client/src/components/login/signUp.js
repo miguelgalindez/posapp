@@ -17,7 +17,8 @@ import {
     PersonAdd,
     PermIdentity,
     Face,
-    MailOutline
+    MailOutline,
+    Lock
 } from "@material-ui/icons";
 
 const styles = theme => LoginStyles(theme)
@@ -102,6 +103,7 @@ class SignUp extends Component {
                                             : <Visibility />
                                         }
                                     </IconButton>
+                                    <Lock className={classes.formFieldIcon} />
                                 </InputAdornment>
                             )
                         }}
