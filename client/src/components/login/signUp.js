@@ -7,12 +7,17 @@ import {
     Button,
     Typography,
     InputAdornment,
-    IconButton
+    IconButton,
+    Avatar
 } from "@material-ui/core";
 
 import {
     Visibility,
-    VisibilityOff
+    VisibilityOff,
+    PersonAdd,
+    PermIdentity,
+    Face,
+    MailOutline
 } from "@material-ui/icons";
 
 const styles = theme => LoginStyles(theme)
@@ -30,54 +35,85 @@ class SignUp extends Component {
 
     render() {
         const { classes } = this.props
-        const { passwordVisibility }=this.state
+        const { passwordVisibility } = this.state
         return (
+            <div className={classes.centeredFlex}>
+                <div className={`${classes.centeredFlex} ${classes.form} ${classes.columnDirection}`}>
+                    <Avatar className={classes.avatar}>
+                        <PersonAdd className={classes.avatarIcon} />
+                    </Avatar>
+                    <br />                    
+                    <Typography variant="subtitle1" align="center" gutterBottom>
+                            Sign up and get instant access to this amazing application
+                    </Typography>
+                </div>
 
-            <form className={classes.form}>
-                <TextField
-                    label="Full name"
-                    variant="outlined"
-                    className={classes.formField}
-                />
-                
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    className={classes.formField}
-                />
+                <form className={classes.form}>
+                    <TextField
+                        label="Full name"
+                        variant="outlined"
+                        className={classes.formField}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment positio="end">
+                                    <Face className={classes.formFieldIcon} />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
 
-                <TextField
-                    label="Username"
-                    variant="outlined"
-                    className={classes.formField}
-                />
+                    <TextField
+                        label="Email"
+                        variant="outlined"
+                        className={classes.formField}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <MailOutline className={classes.formFieldIcon} />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
 
-                <TextField
-                    label="Password"
-                    variant="outlined"
-                    type={passwordVisibility ? "text" : "password"}
-                    className={classes.formField}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton onClick={this.handleTogglePasswordVisibility}>
-                                    {passwordVisibility
-                                        ? <VisibilityOff />
-                                        : <Visibility />
-                                    }
-                                </IconButton>
-                            </InputAdornment>
-                        )
-                    }}
-                />
+                    <TextField
+                        label="Username"
+                        variant="outlined"
+                        className={classes.formField}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <PermIdentity className={classes.formFieldIcon} />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
 
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    className={classes.formButton}
-                >
-                    Sign up
-                </Button>
+                    <TextField
+                        label="Password"
+                        variant="outlined"
+                        type={passwordVisibility ? "text" : "password"}
+                        className={classes.formField}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={this.handleTogglePasswordVisibility}>
+                                        {passwordVisibility
+                                            ? <VisibilityOff />
+                                            : <Visibility />
+                                        }
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        className={classes.formButton}
+                    >
+                        Sign up
+                    </Button>
+                </form>
 
                 <Typography>
                     Have an account? &nbsp;
@@ -85,8 +121,7 @@ class SignUp extends Component {
                 <Link to="/signIn" className={classes.formLink}>
                     <Typography>Sign in</Typography>
                 </Link>
-
-            </form>
+            </div>
         )
     }
 }

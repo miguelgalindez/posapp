@@ -9,6 +9,7 @@ const styles = theme => ({
         flexWrap: "wrap",
         justifyContent: "center",
         alignItems: "center",
+        marginBottom: theme.spacing.unit*2
     },
     horizontalLine: {
         flexGrow: 1,

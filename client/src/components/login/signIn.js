@@ -12,7 +12,7 @@ class SignIn extends Component {
     render() {
         const { classes } = this.props
         return (
-            <form className={classes.form} autoComplete="off">
+            <form className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
                 <TextField
                     label="Username"
                     variant="outlined"
@@ -20,7 +20,9 @@ class SignIn extends Component {
 
                     InputProps={{
                         endAdornment: (
-                            <InputAdornment position="end"><AccountCircle /></InputAdornment>
+                            <InputAdornment position="end">
+                                <AccountCircle className={classes.formFieldIcon} />
+                            </InputAdornment>
                         )
                     }}
                 />
@@ -31,14 +33,22 @@ class SignIn extends Component {
                     className={classes.formField}
                     InputProps={{
                         endAdornment: (
-                            <InputAdornment position="end"><Lock /></InputAdornment>
+                            <InputAdornment position="end">
+                                <Lock className={classes.formFieldIcon} />
+                            </InputAdornment>
                         )
                     }}
                 />
 
-                <Link to="/passwordReset" className={classes.formLink}>
-                    <Typography>Forgot password?</Typography>
-                </Link>
+                
+                <Typography 
+                    component={Link} 
+                    to="/passwordReset" 
+                    className={classes.formLink}
+                >
+                    Forgot password?
+                </Typography>
+                
 
                 <Button 
                     variant="contained"
@@ -50,11 +60,14 @@ class SignIn extends Component {
 
                 <Typography>
                     Don't have an account? &nbsp;
+                </Typography>                
+                <Typography 
+                    component={Link} 
+                    to="/signUp" 
+                    className={classes.formLink}
+                >
+                    Sign up
                 </Typography>
-                <Link to="/signUp" className={classes.formLink}>
-                    <Typography>Sign up</Typography>
-                </Link>
-
             </form>
         )
     }
