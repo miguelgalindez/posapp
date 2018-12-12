@@ -1,9 +1,13 @@
-import React, { Component } from "react"
+import React, { Component, Fragment } from "react"
 import { Link } from "react-router-dom";
 import { InputAdornment, Button, TextField, Typography } from "@material-ui/core"
+import { 
+    AllSocialButtons
+    } from "../socialButtons";
 import { AccountCircle, Lock } from "@material-ui/icons"
 import { withStyles } from "@material-ui/core/styles"
 import LoginStyles from "./styles"
+import { Divider } from "../utils";
 
 const styles = theme => LoginStyles(theme)
 
@@ -12,63 +16,83 @@ class SignIn extends Component {
     render() {
         const { classes } = this.props
         return (
-            <form className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
-                <TextField
-                    label="Username"
-                    variant="outlined"
-                    className={classes.formField}
-
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <AccountCircle className={classes.formFieldIcon} />
-                            </InputAdornment>
-                        )
-                    }}
-                />
-
-                <TextField
-                    label="Password"
-                    variant="outlined"
-                    className={classes.formField}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <Lock className={classes.formFieldIcon} />
-                            </InputAdornment>
-                        )
-                    }}
-                />
-
-                
+            <Fragment>
                 <Typography 
-                    component={Link} 
-                    to="/passwordReset" 
-                    className={classes.formLink}
-                >
-                    Forgot password?
-                </Typography>
-                
-
-                <Button 
-                    variant="contained"
-                    color="secondary"
-                    className={classes.formButton}
-                >
-                    Sign in
-                </Button>
-
-                <Typography>
-                    Don't have an account? &nbsp;
+                    variant="h6" 
+                    gutterBottom                    
+                    >
+                    Connect with
                 </Typography>                
-                <Typography 
-                    component={Link} 
-                    to="/signUp" 
-                    className={classes.formLink}
-                >
-                    Sign up
-                </Typography>
-            </form>
+                <AllSocialButtons 
+                    gridContainerClassName={classes.form} 
+                    gridItemsClassName={classes.socialButton} />                
+                
+                <Divider 
+                    text="Or be classical" 
+                    marginTop={2} 
+                    marginBottom={2} 
+                    />
+
+                <form 
+                    className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
+                    <TextField
+                        label="Username"
+                        variant="outlined"
+                        className={classes.formField}
+
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <AccountCircle className={classes.formFieldIcon} />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+
+                    <TextField
+                        label="Password"
+                        variant="outlined"
+                        type="password"
+                        className={classes.formField}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <Lock className={classes.formFieldIcon} />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+
+                    
+                    <Typography 
+                        component={Link} 
+                        to="/passwordReset" 
+                        className={classes.formLink}
+                    >
+                        Forgot password?
+                    </Typography>
+                    
+
+                    <Button 
+                        variant="contained"
+                        color="secondary"
+                        className={classes.formButton}
+                    >
+                        Sign in
+                    </Button>
+
+                    <Typography>
+                        Don't have an account? &nbsp;
+                    </Typography>                
+                    <Typography 
+                        component={Link} 
+                        to="/signUp" 
+                        className={classes.formLink}
+                    >
+                        Sign up
+                    </Typography>
+                </form>
+            </Fragment>
         )
     }
 }

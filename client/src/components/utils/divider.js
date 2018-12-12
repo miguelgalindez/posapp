@@ -2,38 +2,45 @@ import React from "react"
 import { Typography } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 
-const styles = theme => ({
+const styles = (theme, props) => ({
     headerContainer: {
         display: "flex",
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: theme.spacing.unit*2
+        marginTop: theme.spacing.unit * props.marginTop,
+        marginBottom: theme.spacing.unit * props.marginBottom
     },
     horizontalLine: {
         flexGrow: 1,
         flexShrink: 1,
         backgroundColor: "white",
-        height: "1vh",               
+        height: "1vh",
     },
     headerText: {
-        marginLeft: theme.spacing.unit*2,
-        marginRight: theme.spacing.unit*2  
+        marginLeft: theme.spacing.unit * 2,
+        marginRight: theme.spacing.unit * 2,
+        textTransform: "none"
     }
 })
 
-const Divider = ({classes}) => (
+const Divider = ({ classes, text }) => (
     <div className={classes.headerContainer}>
         <span className={classes.horizontalLine} />
-        <Typography 
+        <Typography
             variant="button"
             className={classes.headerText}
         >
-            OR
+            {text}
         </Typography>
         <span className={classes.horizontalLine} />
     </div>
 )
 
-export default withStyles(styles)(Divider)
+const withStylesProps = styles => component => props => {
+    const Comp = withStyles(theme => styles(theme, props))(component)
+    return <Comp {...props} />
+}
+
+export default withStylesProps(styles)(Divider)

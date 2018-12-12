@@ -29,6 +29,10 @@ export default theme=>({
         flexDirection: "row",        
     },
 
+    socialButton: {
+        width: "100%"
+    },
+
     form: {        
         width: "100%",
         paddingLeft: theme.spacing.unit * 5,

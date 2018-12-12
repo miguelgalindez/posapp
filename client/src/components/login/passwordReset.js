@@ -47,7 +47,7 @@ const PasswordReset = ({ classes }) => {
                     </Button>                    
                 </form>
                 
-                <Divider />
+                <Divider text="OR" marginBottom={2} />
                 
                 <Typography 
                     component={Link} 
