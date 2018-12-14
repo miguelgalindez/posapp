@@ -1,20 +1,23 @@
-var express = require('express');
+const express = require('express');
+const app = express();
+const httpServer=require('http').Server(app)
 const passport=require('passport')
+const cors=require('cors')
 const session=require('express-session')
 const passportSettingUp=require('./lib/passport-setting-up')
 const environmentProperties=require('./config/env')
 const authRouter=require('./routes/auth')
 var logger = require('morgan')
 
+app.use(cors())
 
-//var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
+const {io, namespaces} =require('./lib/socket')(httpServer)
+app.set('io', io)
 
-var app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize())
 passportSettingUp()
 
@@ -25,13 +28,6 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }))
-
-// This custom middleware allows us to attach the socket id to the session
-app.use((req, res, next) => {
-  req.session.socketId = req.query.socketId
-  next()
-})
-
 
 app.use('/auth', authRouter)
 
@@ -54,4 +50,4 @@ app.use(function(err, req, res, next) {
   res.json(err);
 });
 
-module.exports = app;
+module.exports = httpServer;

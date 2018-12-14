@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from "react"
 import { Link } from "react-router-dom";
 import { InputAdornment, Button, TextField, Typography } from "@material-ui/core"
-import { 
-    AllSocialButtons
-    } from "../socialButtons";
+import OAuth from "./oAuth";
 import { AccountCircle, Lock } from "@material-ui/icons"
 import { withStyles } from "@material-ui/core/styles"
 import LoginStyles from "./styles"
@@ -14,7 +12,7 @@ const styles = theme => LoginStyles(theme)
 class SignIn extends Component {
 
     render() {
-        const { classes } = this.props
+        const { classes, socket } = this.props
         return (
             <Fragment>
                 <Typography 
@@ -23,9 +21,10 @@ class SignIn extends Component {
                     >
                     Connect with
                 </Typography>                
-                <AllSocialButtons 
+                <OAuth 
                     gridContainerClassName={classes.form} 
-                    gridItemsClassName={classes.socialButton} />                
+                    gridItemsClassName={classes.socialButton}
+                    socket={socket} />
                 
                 <Divider 
                     text="Or be classical" 

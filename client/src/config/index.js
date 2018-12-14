@@ -1,4 +1,4 @@
-import Environment from "./env"
+import EnvironmentVariables from "./env"
 export {
-    Environment
+    EnvironmentVariables
 }
