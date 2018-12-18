@@ -1,5 +1,4 @@
-module.exports = (httpServer)=>{
-    const allowedOrigins = ["localhost","http://127.0.0.1:3000"];
+module.exports = (httpServer)=>{    
     const io = require('socket.io')(httpServer)
     io.path('/socket.io')
     //io.origins(allowedOrigins)

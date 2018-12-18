@@ -1,5 +1,5 @@
 module.exports=(namespace)=>{
     namespace.on('connection', (socket)=>{
-        console.log('Connected user ', socket.id)
+        console.log('[init-auth-namespace.js] Connected user ', socket.id)
     })
 }

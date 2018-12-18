@@ -11,7 +11,6 @@ import LoginStyles from "./styles";
 import { NotFound } from "../errors";
 
 import { EnvironmentVariables } from "../../config/";
-import signIn from "./signIn";
 const socketsManager=new io.Manager(EnvironmentVariables.apiUrl, {path: '/socket.io'})
 const authSocket=socketsManager.socket('/')
 const styles = theme => LoginStyles(theme)
@@ -46,10 +45,6 @@ class LoginPage extends Component {
             </LandingPage>
         )
     }
-}
-
-const renderComponent=component=>props=>{
-    
 }
 
 export default withStyles(styles)(LoginPage);

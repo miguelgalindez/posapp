@@ -2,8 +2,7 @@ import React, { Component } from "react"
 import { Grid } from "@material-ui/core"
 import {
     FacebookButton,
-    GoogleButton,
-    TwitterButton
+    GoogleButton    
 } from "../socialButtons";
 import { EnvironmentVariables } from "../../config/";
 
@@ -13,9 +12,12 @@ class OAuth extends Component {
 
     }
 
-    componentDidMount(){
-        this.props.socket.on('authenticatedUser', user=>{
-            console.log(user)
+    componentDidMount(){        
+        this.props.socket.on('userAuthenticated', user=>{            
+            if(this.popup){
+                this.popup.close()
+            }
+            console.log(user)            
         })
     }
 
@@ -24,8 +26,7 @@ class OAuth extends Component {
         const left = (window.innerWidth / 2) - (width / 2)
         const top = (window.innerHeight / 2) - (height / 2)
         
-        const authUrl = `${EnvironmentVariables.apiUrl}/auth/${network}?socketId=${this.props.socket.id}`
-        console.log(authUrl)
+        const authUrl = `${EnvironmentVariables.apiUrl}/auth/${network}?socketId=${this.props.socket.id}`        
 
         return window.open(authUrl, '',
             `toolbar=no, location=no, directories=no, status=no, menubar=no, 

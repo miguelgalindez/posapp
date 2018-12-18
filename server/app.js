@@ -8,10 +8,13 @@ const passportSettingUp=require('./lib/passport-setting-up')
 const environmentProperties=require('./config/env')
 const authRouter=require('./routes/auth')
 var logger = require('morgan')
+const debug=require("debug")("server:app")
 
 app.use(cors())
 
 const {io, namespaces} =require('./lib/socket')(httpServer)
+//debug("io", io)
+//debug("namespaces", namespaces)
 app.set('io', io)
 
 
