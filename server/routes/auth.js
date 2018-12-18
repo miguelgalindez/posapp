@@ -20,6 +20,6 @@ const facebookAuth=passport.authenticate('facebook', {failureRedirect: '/faceboo
 router.get('/google', addSocketIdToSession, googleAuth)
 router.get('/google/callback', googleAuth, authController.handleGoogleCallback)
 router.get('/facebook', addSocketIdToSession, facebookAuth)
-router.get('/facebook/callback', facebookAuth, authController.handleTwitterCallback)
+router.get('/facebook/callback', facebookAuth, authController.handleFacebookCallback)
 
 module.exports=router

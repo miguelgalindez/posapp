@@ -12,7 +12,7 @@ import { NotFound } from "../errors";
 
 import { EnvironmentVariables } from "../../config/";
 const socketsManager=new io.Manager(EnvironmentVariables.apiUrl, {path: '/socket.io'})
-const authSocket=socketsManager.socket('/')
+const authSocket=socketsManager.socket(EnvironmentVariables.authIoNamespace)
 const styles = theme => LoginStyles(theme)
 
 class LoginPage extends Component {

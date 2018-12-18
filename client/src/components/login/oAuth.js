@@ -24,9 +24,10 @@ class OAuth extends Component {
     openPopup = (network) => {        
         const width = 600, height = 600
         const left = (window.innerWidth / 2) - (width / 2)
-        const top = (window.innerHeight / 2) - (height / 2)
-        
-        const authUrl = `${EnvironmentVariables.apiUrl}/auth/${network}?socketId=${this.props.socket.id}`        
+        const top = (window.innerHeight / 2) - (height / 2)        
+
+        const socketId=this.props.socket.id.replace(`${this.props.socket.nsp}#`, '')
+        const authUrl = `${EnvironmentVariables.apiUrl}/auth/${network}?socketId=${socketId}`
 
         return window.open(authUrl, '',
             `toolbar=no, location=no, directories=no, status=no, menubar=no, 
