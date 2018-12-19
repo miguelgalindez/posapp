@@ -5,6 +5,10 @@ module.exports = (httpServer)=>{
     const namespaces = {
         auth: io.of('/auth')
     }
+
+    namespaces.auth.on('connection', socket=>{
+        console.log('Client connected: ', socket.id)
+    })
     
     return {
         io,

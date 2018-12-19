@@ -44,30 +44,34 @@ class OAuth extends Component {
         this.popup=this.openPopup(network)                    
     }
 
-    render() {
-        const { gridContainerClassName, gridItemsClassName } = this.props
-        return (
-            <Grid
-                container
-                className={gridContainerClassName}
-                justify="space-between"
-                alignItems="center"
-                spacing={8}
-            >
-                <Grid item xs>
-                    <FacebookButton 
-                        onClick={this.startAuth('facebook')}
-                        className={gridItemsClassName} 
-                        />
+    render() {        
+        const { gridContainerClassName, gridItemsClassName, socket } = this.props        
+        if(socket && socket.connected){
+            return (
+                <Grid
+                    container
+                    className={gridContainerClassName}
+                    justify="space-between"
+                    alignItems="center"
+                    spacing={8}
+                >
+                    <Grid item xs>
+                        <FacebookButton 
+                            onClick={this.startAuth('facebook')}
+                            className={gridItemsClassName} 
+                            />
+                    </Grid>
+                    <Grid item xs>
+                        <GoogleButton 
+                            onClick={this.startAuth('google')}
+                            className={gridItemsClassName} 
+                            />
+                    </Grid>                
                 </Grid>
-                <Grid item xs>
-                    <GoogleButton 
-                        onClick={this.startAuth('google')}
-                        className={gridItemsClassName} 
-                        />
-                </Grid>                
-            </Grid>
-        )
+            )
+            } else{
+                return null
+            }
     }
 }
 

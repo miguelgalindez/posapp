@@ -9,29 +9,32 @@ import { Divider } from "../utils";
 
 const styles = theme => LoginStyles(theme)
 
-class SignIn extends Component {
-
+class SignIn extends Component {    
     render() {
-        const { classes, socket } = this.props
+        const { classes, socket } = this.props        
         return (
             <Fragment>
-                <Typography 
-                    variant="h6" 
-                    gutterBottom                    
-                    >
-                    Connect with
-                </Typography>                
-                <OAuth 
-                    gridContainerClassName={classes.form} 
-                    gridItemsClassName={classes.socialButton}
-                    socket={socket} />
-                
-                <Divider 
-                    text="Or be classical" 
-                    marginTop={2} 
-                    marginBottom={2} 
-                    />
-
+                {socket && socket.connected 
+                    ? <Fragment>
+                        <Typography 
+                            variant="h6" 
+                            gutterBottom                    
+                            >
+                            Connect with
+                        </Typography>                
+                        <OAuth
+                            gridContainerClassName={classes.form} 
+                            gridItemsClassName={classes.socialButton}
+                            socket={socket} />
+                        
+                        <Divider 
+                            text="Or be classical" 
+                            marginTop={2} 
+                            marginBottom={2} 
+                        />
+                    </Fragment>
+                    : null
+                }
                 <form 
                     className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
                     <TextField
