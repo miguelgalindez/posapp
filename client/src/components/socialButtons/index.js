@@ -1,9 +1,11 @@
 import FacebookButton from "./facebook"
 import GoogleButton from "./google"
-import TwitterButton from "./twitter"
+import InstagramButton from "./instagram"
+import GithubButton from "./github"
 
 export {
     FacebookButton,
     GoogleButton,
-    TwitterButton,
+    InstagramButton,
+    GithubButton 
 }

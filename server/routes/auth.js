@@ -16,10 +16,14 @@ const addSocketIdToSession=(req, res, next)=>{
 // Setting up the passport middleware for each provider
 const googleAuth = passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/google' })
 const facebookAuth=passport.authenticate('facebook', {failureRedirect: '/facebook'})
+const githubAuth=passport.authenticate('github', {failureRedirect: '/github'})
 
 router.get('/google', addSocketIdToSession, googleAuth)
-router.get('/google/callback', googleAuth, authController.handleGoogleCallback)
 router.get('/facebook', addSocketIdToSession, facebookAuth)
+router.get('/github', addSocketIdToSession, githubAuth)
+
+router.get('/google/callback', googleAuth, authController.handleGoogleCallback)
 router.get('/facebook/callback', facebookAuth, authController.handleFacebookCallback)
+router.get('/github/callback', githubAuth, authController.handleGithubCallback)
 
 module.exports=router

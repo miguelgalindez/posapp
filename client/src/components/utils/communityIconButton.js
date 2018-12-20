@@ -25,7 +25,7 @@ const styles = (theme, props) => {
     return props.children ? buttonWithChildrenStyle : buttonWithOutChildrenStyle
 }
 
-const CommunityIconButton = ({ component, to, onClick, className, classes, iconPath, iconSize, iconColor, children }) => (
+const CommunityIconButton = ({ component, to, onClick, className, classes, iconPath, iconSize, iconColor, fullWidth, children }) => (
     <Button
         component={component}
         to={to}
@@ -33,6 +33,7 @@ const CommunityIconButton = ({ component, to, onClick, className, classes, iconP
         variant="contained"        
         className={`${className} ${classes.button}`}
         disableRipple
+        fullWidth={fullWidth}
     >
         <Icon
             path={iconPath}

@@ -9,6 +9,11 @@ module.exports={
         clientSecret: GOOGLE_CONSUMER_SECRET,
         callbackURL: "http://localhost:9308/auth/google/callback"
     },
+    passportGithubStrategyProperties = {
+        clientID: GOOGLE_CONSUMER_KEY,
+        clientSecret: GOOGLE_CONSUMER_SECRET,
+        callbackURL: "http://localhost:9308/auth/google/callback"
+    },
     expressSessionSecret: "",
     
 }

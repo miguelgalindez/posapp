@@ -1,6 +1,7 @@
 const passport=require('passport')
 const FacebookStrategy = require('passport-facebook').Strategy
 const GoogleStrategy=require('passport-google-oauth').OAuth2Strategy
+const GithubStrategy=require('passport-github').Strategy
 const environmentProperties=require('../config/env')
 const debug = require('debug')('server:passport-setting-up');
 
@@ -18,4 +19,5 @@ module.exports=()=>{
     
     passport.use(new FacebookStrategy(environmentProperties.passportFacebookStrategyProperties, callback))
     passport.use(new GoogleStrategy(environmentProperties.passportGoogleStrategyProperties, callback))
+    passport.use(new GithubStrategy(environmentProperties.passportGithubStrategyProperties, callback))
 }

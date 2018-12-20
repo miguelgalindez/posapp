@@ -9,33 +9,23 @@ import { Divider } from "../utils";
 
 const styles = theme => LoginStyles(theme)
 
-class SignIn extends Component {    
+class SignIn extends Component {
     render() {
-        const { classes, socket } = this.props        
+        const { classes, socket } = this.props
+        const oAuthHeader = <Typography variant="h6" gutterBottom>Connect with</Typography>
+        const oAuthFooter = <Divider text="Or be classical" marginTop={2} marginBottom={2} />
         return (
             <Fragment>
-                {socket && socket.connected 
-                    ? <Fragment>
-                        <Typography 
-                            variant="h6" 
-                            gutterBottom                    
-                            >
-                            Connect with
-                        </Typography>                
-                        <OAuth
-                            gridContainerClassName={classes.form} 
-                            gridItemsClassName={classes.socialButton}
-                            socket={socket} />
-                        
-                        <Divider 
-                            text="Or be classical" 
-                            marginTop={2} 
-                            marginBottom={2} 
-                        />
-                    </Fragment>
+                {socket
+                    ? <OAuth
+                        gridContainerClassName={classes.form}
+                        socket={socket}
+                        header={oAuthHeader}
+                        footer={oAuthFooter}
+                    />
                     : null
                 }
-                <form 
+                <form
                     className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
                     <TextField
                         label="Username"
@@ -65,17 +55,17 @@ class SignIn extends Component {
                         }}
                     />
 
-                    
-                    <Typography 
-                        component={Link} 
-                        to="/passwordReset" 
+
+                    <Typography
+                        component={Link}
+                        to="/passwordReset"
                         className={classes.formLink}
                     >
                         Forgot password?
                     </Typography>
-                    
 
-                    <Button 
+
+                    <Button
                         variant="contained"
                         color="secondary"
                         className={classes.formButton}
@@ -85,10 +75,10 @@ class SignIn extends Component {
 
                     <Typography>
                         Don't have an account? &nbsp;
-                    </Typography>                
-                    <Typography 
-                        component={Link} 
-                        to="/signUp" 
+                    </Typography>
+                    <Typography
+                        component={Link}
+                        to="/signUp"
                         className={classes.formLink}
                     >
                         Sign up

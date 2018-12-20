@@ -27,11 +27,7 @@ export default theme=>({
 
     rowDirection: {        
         flexDirection: "row",        
-    },
-
-    socialButton: {
-        width: "100%"
-    },
+    },    
 
     form: {        
         width: "100%",

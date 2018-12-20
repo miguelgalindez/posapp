@@ -9,11 +9,9 @@ import PasswordReset from "./passwordReset"
 import { LandingPage } from "../layouts";
 import LoginStyles from "./styles";
 import { NotFound } from "../errors";
-
 import { EnvironmentVariables } from "../../config/";
-const socketsManager = new io.Manager(EnvironmentVariables.apiUrl, { path: '/socket.io' })
-const authSocket = socketsManager.socket(EnvironmentVariables.authIoNamespace)
 const styles = theme => LoginStyles(theme)
+const socketEvents=["connect", "connect_error", "connect_timeout", "error", "disconnect", "reconnect", "reconnect_attempt", "reconnecting", "reconnect_error", "reconnect_failed"]
 
 class LoginPage extends Component {
     state = {
@@ -21,9 +19,17 @@ class LoginPage extends Component {
     }
 
     async componentDidMount() {
-        await ["connect", "connect_error", "connect_timeout", "error", "disconnect", "reconnect", "reconnect_attempt", "reconnecting", "reconnect_error", "reconnect_failed"].forEach(event => {
+        const socketsManager = await  new io.Manager(EnvironmentVariables.apiUrl, { path: '/socket.io' })
+        const authSocket = await socketsManager.socket(EnvironmentVariables.authIoNamespace)
+        await socketEvents.forEach(event => {
             authSocket.on(event, this.updateSocket(authSocket))
         })        
+    }
+    
+    async componentWillUnmount(){
+        await socketEvents.forEach(event => {
+            this.state.socket.removeAllListeners(event)
+        })
     }
 
     updateSocket = socket => () => {
