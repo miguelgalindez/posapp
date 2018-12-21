@@ -1,2 +1,2 @@
 const username="posapp";
-const pwd="j;8EcrzF!G(s'WFW";
+const pwd=APP_USER_PASSWORD;

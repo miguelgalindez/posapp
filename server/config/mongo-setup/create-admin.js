@@ -1,4 +1,4 @@
-db = connect("localhost:27017/admin", adminUsername, adminPwd)
+db = connect("localhost:27017/admin")
 db.dropUser(adminUsername);
 db.createUser({
     user: adminUsername,

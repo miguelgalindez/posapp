@@ -25,4 +25,6 @@ yarn-error.log*
 
 # Configuration
 /server/config/env.js
+/server/config/mongo-setup/admin-creadentials.js
+/server/config/mongo-setup/app-user-credentials.js
 /client/src/config/env.js
