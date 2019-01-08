@@ -14,6 +14,15 @@ module.exports={
         clientSecret: GOOGLE_CONSUMER_SECRET,
         callbackURL: "http://localhost:9308/auth/google/callback"
     },
-    expressSessionSecret: "",
+    expressSessionSecret: YOUR_SECRET,
     
+    mongoDb: {
+        url: "mongodb://username:password@localhost:27017/posapp",
+        options: {
+            useNewUrlParser: true,
+            reconnectTries: Number.MAX_VALUE,
+            reconnectInterval: 3000,
+            keepAlive: true
+        }
+    }
 }

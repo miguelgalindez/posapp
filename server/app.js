@@ -1,17 +1,18 @@
 const express = require('express');
 const app = express();
-const httpServer=require('http').Server(app)
-const passport=require('passport')
-const cors=require('cors')
-const session=require('express-session')
-const passportSettingUp=require('./lib/passport-setting-up')
-const environmentProperties=require('./config/env')
-const authRouter=require('./routes/auth')
+const httpServer = require('http').Server(app)
 var logger = require('morgan')
+const passport = require('passport')
+const cors = require('cors')
+const session = require('express-session')
+const passportSettingUp = require('./lib/passport-setting-up')
+const environmentProperties = require('./config/env')
+const authRouter = require('./routes/auth')
+require('./lib/connect-mongo')(environmentProperties)
 
 app.use(cors())
 
-const {io, namespaces: ioNamespaces} =require('./lib/socket')(httpServer)
+const { io, namespaces: ioNamespaces } = require('./lib/socket')(httpServer)
 app.set('io', io)
 app.set('ioNamespaces', ioNamespaces)
 
@@ -33,14 +34,14 @@ app.use('/auth', authRouter)
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.status(404).json({
     error: "Resource not found"
   })
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

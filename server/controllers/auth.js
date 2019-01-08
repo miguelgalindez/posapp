@@ -1,4 +1,4 @@
-const debug = require('debug')('server:authController')
+//const debug = require('debug')(`server:${__filename}`)
 
 const notifyClient = (req, res, user) => {
     const io = req.app.get("io")

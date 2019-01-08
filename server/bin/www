@@ -5,7 +5,7 @@
  */
 
 var httpServer = require('../app');
-var debug = require('debug')('server:server');
+const debug = require('debug')(`server:${__filename}`);
 
 /**
  * Get port from environment and store in Express.

@@ -3,7 +3,7 @@ const FacebookStrategy = require('passport-facebook').Strategy
 const GoogleStrategy=require('passport-google-oauth').OAuth2Strategy
 const GithubStrategy=require('passport-github').Strategy
 const environmentProperties=require('../config/env')
-const debug = require('debug')('server:passport-setting-up');
+//const debug = require('debug')(`server:${__filename}`);
 
 module.exports=()=>{
     const callback=(accessToken, refreshToken, profile, done)=>{
