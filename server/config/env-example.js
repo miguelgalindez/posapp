@@ -17,7 +17,7 @@ module.exports={
     expressSessionSecret: YOUR_SECRET,
     
     mongoDb: {
-        url: "mongodb://username:password@localhost:27017/posapp",
+        url: "mongodb://posapp:password@localhost:27017/posapp",
         options: {
             useNewUrlParser: true,
             reconnectTries: Number.MAX_VALUE,
