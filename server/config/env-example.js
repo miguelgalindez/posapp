@@ -22,7 +22,8 @@ module.exports={
             useNewUrlParser: true,
             reconnectTries: Number.MAX_VALUE,
             reconnectInterval: 3000,
-            keepAlive: true
+            keepAlive: true,
+            autoIndex: false
         }
     }
 }

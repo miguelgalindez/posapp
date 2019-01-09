@@ -1,5 +1,11 @@
 const mongoose = require('mongoose')
 const debug = require('debug')(`server:${__filename}`);
+
+const connectMongo = async environmentProperties => {
+    await mongoose.connect(environmentProperties.mongoDb.url, environmentProperties.mongoDb.options)
+    debug('Mongoose connected')
+}
+
 module.exports = async (environmentProperties) => {
     /**
      * Compiling the mongoose schemas into models
@@ -9,9 +15,7 @@ module.exports = async (environmentProperties) => {
     /**
      * Trying to connect to Mongo
      */
-    await mongoose.connect(environmentProperties.mongoDb.url, environmentProperties.mongoDb.options)
-        .then(() => debug('Mongoose connected'))
-        .catch(console.error);
+    await connectMongo(environmentProperties).catch(error => debug(error))
 
     /**
     * Adding connection event handlers
@@ -27,7 +31,7 @@ module.exports = async (environmentProperties) => {
     mongoose.connection.on('disconnected', function () {
         debug('Mongoose disconnected')
     })
-    
+
     /**
     * Adding some application finishing event handlers
     */
@@ -59,5 +63,5 @@ module.exports = async (environmentProperties) => {
     /**
     * Returning the Mongoose connection
     */
-   return mongoose.connection;
+    return mongoose.connection;
 }
