@@ -16,7 +16,8 @@ exports.handleGoogleCallback = (req, res) => {
     const user = {
         name: displayName,
         email: emails ? emails.find(email => email.type.toLowerCase() === "account").value : undefined,
-        photo: photos ? photos[0].value : undefined
+        photo: photos ? photos[0].value : undefined,
+        signedUpWithOauth: true
     }
     notifyClient(req, res, user)
 }
@@ -30,7 +31,8 @@ exports.handleGithubCallback = (req, res) => {
     const user = {
         name: displayName,
         email: emails ? emails[0].value : undefined,
-        photo: photos ? photos[0].value : undefined
+        photo: photos ? photos[0].value : undefined,
+        signedUpWithOauth: true
     }
 
     notifyClient(req, res, user)

@@ -6,17 +6,20 @@ const connectMongo = async environmentProperties => {
     debug('Mongoose connected')
 }
 
-module.exports = async (environmentProperties) => {
-    /**
-     * Compiling the mongoose schemas into models
-     */
-    //require('./api/model')
+module.exports = async (environmentProperties) => {    
+    try{
+        /**
+         * Compiling the mongoose schemas into models
+         */
+        await require('../models')
+        /**
+         * Trying to connect to Mongo
+         */
+        await connectMongo(environmentProperties).catch(error => debug(error))        
 
-    /**
-     * Trying to connect to Mongo
-     */
-    await connectMongo(environmentProperties).catch(error => debug(error))
-
+    } catch(error){
+        debug(error)
+    }
     /**
     * Adding connection event handlers
     */

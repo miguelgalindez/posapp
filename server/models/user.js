@@ -1,4 +1,6 @@
-const mongoose, { Schema } = require('mongoose')
+const mongoose = require('mongoose')
+const { Schema } = mongoose
+const debug = require('debug')(`server:${__filename}`)
 
 const UserSchema = new Schema({
     username: {
@@ -31,7 +33,6 @@ const UserSchema = new Schema({
 
     password: {
         type: String,
-        required: true,
         minlength: [6, 'Too short password. It must be, at least, 6 characters in length.'],
         maxlength: [24, 'Too long password. It must be, at most, 24 characters in length.'],
         validate: {
@@ -49,15 +50,72 @@ const UserSchema = new Schema({
         required: true,
         minlength: [3, 'Too short name. It must be, at least, 3 characters in length'],
         maxlength: [64, 'Too long name. It must be, at most, 64 characters in length']
-    }
+    },
+    photo: String
 })
 
-UserSchema.query.byUsername = function (username) {
+UserSchema.query.byUsername = async function (username) {
     return this.where({
         username: new RegExp(username, 'i')
     })
-} 
-// const user = await User.find().byUsername('asd@asd.asd')
-// const user = await User.findOne().byUsername('asd@asd.asd')
+}
+
+UserSchema.query.byEmail = async function (email) {
+    return await this.where({
+        email: new RegExp(email, 'i')
+    })
+}
+
+UserSchema.statics.findByUsernameOrEmail = async function (username, email) {
+    return await this.find({
+        $or: [
+            { username },
+            { email }
+        ]
+    }).limit(1)
+}
+
+UserSchema.statics.signUp = async function (user) {
+    if (user) {
+        try{
+            const u = this.findByUsernameOrEmail(user.username, user.email)
+            if (!u) {
+                return await this.create(user)
+            } else {
+                // TODO - Improve this error throwing - try to follow the mongoose standard
+                throw new Error("There's already a user registered with this username or email")
+            }
+        } catch(error){
+            debug(error)
+            // TODO - Improve this error throwing - try to follow the mongoose standard
+            throw new Error(error)
+        }
+    } else {
+        // TODO - Improve this error throwing - try to follow the mongoose standard
+        throw new Error('User must be not null')
+    }
+}
+
+UserSchema.statics.signIn = async function (user) {
+    if (user && (user.username || user.email)) {
+        try {
+            let u = await this.findByUsernameOrEmail(user.username, user.email)            
+            if (u) {
+                // We have to check if the user is trying to signing in through OAuth
+                if (user.signedInWithOauth) {
+                    return user.email == u.email ? u : null
+                }
+                // TODO - Password hashing
+                return user.password == u.password ? u : null
+            }
+        } catch (error) {
+            debug(error)
+            // TODO - Improve this error throwing - try to follow the mongoose standard
+            throw new Error(error)
+        }
+    }
+    return null;
+}
 
 mongoose.model('User', UserSchema)
+debug('User model compiled')
