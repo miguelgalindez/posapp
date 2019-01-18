@@ -11,7 +11,7 @@ module.exports = async (environmentProperties) => {
         /**
          * Compiling the mongoose schemas into models
          */
-        await require('../models')
+        await require('./models')
         /**
          * Trying to connect to Mongo
          */

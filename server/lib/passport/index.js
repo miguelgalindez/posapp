@@ -2,10 +2,11 @@ const passport=require('passport')
 const FacebookStrategy = require('passport-facebook').Strategy
 const GoogleStrategy=require('passport-google-oauth').OAuth2Strategy
 const GithubStrategy=require('passport-github').Strategy
-const environmentProperties=require('../config/env')
+const environmentProperties=require('../../config/env')
 //const debug = require('debug')(`server:${__filename}`);
 
 module.exports=()=>{
+    const passportMiddleware=passport.initialize()
     const callback=(accessToken, refreshToken, profile, done)=>{
         // The function that is called when an OAuth provider sends back user 
         // information.  Normally, you would save the user to the database 
@@ -20,4 +21,5 @@ module.exports=()=>{
     passport.use(new FacebookStrategy(environmentProperties.passportFacebookStrategyProperties, callback))
     passport.use(new GoogleStrategy(environmentProperties.passportGoogleStrategyProperties, callback))
     passport.use(new GithubStrategy(environmentProperties.passportGithubStrategyProperties, callback))
+    return passportMiddleware
 }
