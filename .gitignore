@@ -24,6 +24,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # Configuration
+
+server/.vscode/settings.json
 /server/config/env.js
 /server/config/mongo-setup/admin-creadentials.js
 /server/config/mongo-setup/app-user-credentials.js

@@ -1,0 +1,95 @@
+{
+  "errors": [
+    {
+      "message": "this.find.where is not a function",
+      "locations": [
+        {
+          "line": 31,
+          "column": 3
+        }
+      ],
+      "path": [
+        "user"
+      ]
+    }
+  ],
+  "data": {
+    "user": null
+  }
+}
+
+
+{ ValidationError: User validation failed: username: Path `username` is required., email: Path `email`is required., password: Too short password. It must be, at least,
+  6 characters in length.
+  at ValidationError.inspect (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/error/validation.js: 59: 24)
+  at formatValue (internal/util/inspect.js: 527: 31)
+  at inspect (internal/util/inspect.js: 196: 10)
+  at Object.formatWithOptions (util.js: 174: 18)
+  at Console.(anonymous function) (internal/console/constructor.js: 274: 15)
+  at Console.log (internal/console/constructor.js: 283: 59)
+  at Function.UserSchema.statics.signUp (/home/miguel/workspace/posapp/server/lib/mongo/models/user.js: 95: 21)
+  at processTicksAndRejections (internal/process/next_tick.js: 81: 5)
+errors: { username: { ValidatorError: Path `username` is required.
+        at new ValidatorError (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/error/validator.js: 29: 11)
+        at validate (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 926: 13)
+        at /home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 979: 11
+        at Array.forEach (<anonymous>)
+        at SchemaString.SchemaType.doValidate (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 935: 19)
+        at /home/miguel/workspace/posapp/server/node_modules/mongoose/lib/document.js: 1929: 9
+        at processTicksAndRejections (internal/process/next_tick.js: 74: 9)
+      message: 'Path `username` is required.',
+      name: 'ValidatorError',
+      properties: [Object
+      ],
+      kind: 'required',
+      path: 'username',
+      value: null,
+      reason: undefined,
+      [Symbol(mongoose:validatorError)
+      ]: true
+    },
+   email: { ValidatorError: Path `email` is required.
+        at new ValidatorError (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/error/validator.js: 29: 11)
+        at validate (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 926: 13)
+        at /home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 979: 11
+        at Array.forEach (<anonymous>)
+        at SchemaString.SchemaType.doValidate (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 935: 19)
+        at /home/miguel/workspace/posapp/server/node_modules/mongoose/lib/document.js: 1929: 9
+        at processTicksAndRejections (internal/process/next_tick.js: 74: 9)
+      message: 'Path `email` is required.',
+      name: 'ValidatorError',
+      properties: [Object
+      ],
+      kind: 'required',
+      path: 'email',
+      value: null,
+      reason: undefined,
+      [Symbol(mongoose:validatorError)
+      ]: true
+    },
+   password: { ValidatorError: Too short password. It must be, at least,
+      6 characters in length.
+        at new ValidatorError (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/error/validator.js: 29: 11)
+        at validate (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 926: 13)
+        at /home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 979: 11
+        at Array.forEach (<anonymous>)
+        at SchemaString.SchemaType.doValidate (/home/miguel/workspace/posapp/server/node_modules/mongoose/lib/schematype.js: 935: 19)
+        at /home/miguel/workspace/posapp/server/node_modules/mongoose/lib/document.js: 1929: 9
+        at processTicksAndRejections (internal/process/next_tick.js: 74: 9)
+      message:
+       'Too short password. It must be, at least,
+      6 characters in length.',
+      name: 'ValidatorError',
+      properties: [Object
+      ],
+      kind: 'minlength',
+      path: 'password',
+      value: '123',
+      reason: undefined,
+      [Symbol(mongoose:validatorError)
+      ]: true
+    }
+  },
+_message: 'User validation failed',
+name: 'ValidationError'
+}

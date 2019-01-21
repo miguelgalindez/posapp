@@ -6,17 +6,12 @@ const session = require('express-session')
 const cors = require('cors')
 const authRouter = require('./routes/auth')
 const environmentProperties = require('./config/env')
+const graphql = require('express-graphql')
+const initSocketIO = require('./lib/socket-io')
 const initPassport = require('./lib/passport')
 const initMongo = require('./lib/mongo')
-const initSocketIO = require('./lib/socket-io')
-
 /**
- * GraphQL imports
- */
-const graphql = require('express-graphql')
-
-/**
- * Trying to connect to mongo db
+ * Trying to initialize mongo connection
  */
 initMongo(environmentProperties)
 
@@ -29,7 +24,7 @@ const { io, namespaces: ioNamespaces } = initSocketIO(httpServer)
 app.set('io', io)
 app.set('ioNamespaces', ioNamespaces)
 
-app.use(logger('dev'));
+//app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -53,11 +48,21 @@ app.use('/auth', authRouter)
 
 /**
  * Setting up graphql
- 
-app.use('/graphql', graphql({
-  graphiql: true
-}))
 */
+const graphqlSchema=require('./lib/graphql/schema')
+app.use('/graphql', graphql({
+  graphiql: true,
+  schema: graphqlSchema,
+  formatError: error => ({
+    name: error.name,
+    type: error.originalError && error.originalError.type,
+    message: error.message,
+    fields: error.originalError && error.originalError.fields,
+    path: error.path
+
+  })
+}))
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

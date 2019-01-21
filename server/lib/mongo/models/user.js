@@ -1,12 +1,11 @@
 const mongoose = require('mongoose')
 const { Schema } = mongoose
+const { createCustomError } = require('../../error-crafter')
 const debug = require('debug')(`server:${__filename}`)
 
 const UserSchema = new Schema({
     username: {
         type: String,
-        unique: true,
-        sparse: true,
         required: function () {
             return !this.email
         },
@@ -20,8 +19,6 @@ const UserSchema = new Schema({
 
     email: {
         type: String,
-        unique: true,
-        sparse: true,
         required: function () {
             return !this.username
         },
@@ -55,40 +52,57 @@ const UserSchema = new Schema({
 })
 
 UserSchema.query.byUsername = async function (username) {
-    return this.where({
+    return await this.where({
         username: new RegExp(username, 'i')
     })
 }
 
-UserSchema.query.byEmail = async function (email) {
-    return await this.where({
-        email: new RegExp(email, 'i')
-    })
+UserSchema.statics.findByEmail = async function (email) {
+    if (email) {
+        return await this.findOne({
+            email: new RegExp(email, 'i')
+        })
+    } else {
+        return null
+    }
 }
 
 UserSchema.statics.findByUsernameOrEmail = async function (username, email) {
-    return await this.find({
-        $or: [
-            { username },
-            { email }
-        ]
-    }).limit(1)
+    if (username || email) {
+        return await this.findOne({
+            $or: [
+                { username },
+                { email }
+            ]
+        })
+    } else {
+        throw await createCustomError({
+            name: "ValidationError",
+            message: "You must provide, at least, an username or an email"
+        })
+    }
 }
 
 UserSchema.statics.signUp = async function (user) {
     if (user) {
-        try{
-            const u = this.findByUsernameOrEmail(user.username, user.email)
-            if (!u) {
-                return await this.create(user)
-            } else {
-                // TODO - Improve this error throwing - try to follow the mongoose standard
-                throw new Error("There's already a user registered with this username or email")
+
+        const u = await this.findByUsernameOrEmail(user.username, user.email)
+        if (!u) {
+            return await this.create(user)
+        } else {
+            let errors = {};
+            if (user.username && user.username === u.username) {
+                errors.username = { message: "Duplicated username" }
             }
-        } catch(error){
-            debug(error)
-            // TODO - Improve this error throwing - try to follow the mongoose standard
-            throw new Error(error)
+            if (user.email && user.email === u.email) {
+                errors.email = { message: "Duplicated email" }
+            }
+
+            throw await createCustomError({
+                name: "ValidationError",
+                message: "There is already a registered user with that username or email",
+                errors
+            })
         }
     } else {
         // TODO - Improve this error throwing - try to follow the mongoose standard
@@ -99,7 +113,7 @@ UserSchema.statics.signUp = async function (user) {
 UserSchema.statics.signIn = async function (user) {
     if (user && (user.username || user.email)) {
         try {
-            let u = await this.findByUsernameOrEmail(user.username, user.email)            
+            let u = await this.findByUsernameOrEmail(user.username, user.email)
             if (u) {
                 // We have to check if the user is trying to signing in through OAuth
                 if (user.signedInWithOauth) {
