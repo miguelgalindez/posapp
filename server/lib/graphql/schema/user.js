@@ -1,7 +1,7 @@
 const graphql = require('graphql')
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
-const ErrorCrafter=require('../../error-crafter')
+const { createGraphQLErrorFromMongooseError } = require('../../error-crafter')
 
 module.exports.userTypeDef = `
     type User {
@@ -32,10 +32,10 @@ module.exports.userResolvers = {
             return await User.findByEmail(args.email)
         },
         userByUsernameOrEmail: async (parent, args) => {
-            try{
+            try {
                 return await User.findByUsernameOrEmail(args.username, args.email)
-            } catch(mongooseError){                               
-               throw await ErrorCrafter.createGraphQLErrorFromMongooseError(mongooseError)
+            } catch (mongooseError) {
+                throw await createGraphQLErrorFromMongooseError(mongooseError)
             }
         }
     },
@@ -43,8 +43,8 @@ module.exports.userResolvers = {
         userSignUp: async (parent, args) => {
             try {
                 return await User.signUp(args)
-            } catch (mongooseError) {                
-                throw await ErrorCrafter.createGraphQLErrorFromMongooseError(mongooseError)
+            } catch (mongooseError) {
+                throw await createGraphQLErrorFromMongooseError(mongooseError)
             }
         }
     }

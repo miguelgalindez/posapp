@@ -3,6 +3,11 @@ const { Schema } = mongoose
 const { createCustomError } = require('../../error-crafter')
 const debug = require('debug')(`server:${__filename}`)
 
+
+/**
+ * TODO: Find out how to make unique constraint work properly
+ */
+
 const UserSchema = new Schema({
     username: {
         type: String,
@@ -57,6 +62,11 @@ UserSchema.query.byUsername = async function (username) {
     })
 }
 
+/**
+ * TODO: update queries to select all the needed fields except the password 
+ * (Never pass the password to graphql neither to the user)
+ */
+
 UserSchema.statics.findByEmail = async function (email) {
     if (email) {
         return await this.findOne({
@@ -83,52 +93,82 @@ UserSchema.statics.findByUsernameOrEmail = async function (username, email) {
     }
 }
 
-UserSchema.statics.signUp = async function (user) {
+UserSchema.statics.signUp = async function (user, accessingThroughOAuth = false) {
     if (user) {
-
         const u = await this.findByUsernameOrEmail(user.username, user.email)
         if (!u) {
+            // TODO: watch out !!! don't ever return the password
+            debug("New user trying to sign up")
             return await this.create(user)
         } else {
-            let errors = {};
-            if (user.username && user.username === u.username) {
-                errors.username = { message: "Duplicated username" }
+            if (accessingThroughOAuth) {
+                // TODO: Improve this to avoid an unnecessary additional query to the database
+                debug("Already registered user trying to sign up through OAuth")
+                return await this.signIn(user, accessingThroughOAuth)
             }
-            if (user.email && user.email === u.email) {
-                errors.email = { message: "Duplicated email" }
+            else {
+                let errors = {};
+                if (user.username && user.username === u.username) {
+                    errors.username = { message: "There is already a registered user with this username" }
+                }
+                if (user.email && user.email === u.email) {
+                    errors.email = { message: "There is already a registered user with this email" }
+                }
+                throw await createCustomError({
+                    name: "ValidationError",
+                    message: "There is already a registered user with that username or email",
+                    errors
+                })
             }
-
-            throw await createCustomError({
-                name: "ValidationError",
-                message: "There is already a registered user with that username or email",
-                errors
-            })
         }
     } else {
-        // TODO - Improve this error throwing - try to follow the mongoose standard
-        throw new Error('User must be not null')
+        throw await createCustomError({
+            name: "ValidationError",
+            message: "User must not be null"
+        })
     }
 }
 
-UserSchema.statics.signIn = async function (user) {
-    if (user && (user.username || user.email)) {
-        try {
-            let u = await this.findByUsernameOrEmail(user.username, user.email)
-            if (u) {
-                // We have to check if the user is trying to signing in through OAuth
-                if (user.signedInWithOauth) {
-                    return user.email == u.email ? u : null
-                }
+UserSchema.statics.signIn = async function (user, accessingThroughOAuth = false) {
+    if (user && (user.username || user.email) && (accessingThroughOAuth || user.password)) {
+        let u = await this.findByUsernameOrEmail(user.username, user.email)
+        if (u) {
+            if (accessingThroughOAuth) {
+                debug("Trying to authenticate an user who came from OAuth")
+                return user.email == u.email ? u : null
+            } else {
                 // TODO - Password hashing
+                debug("Trying to authenticate an user against their password")
                 return user.password == u.password ? u : null
             }
-        } catch (error) {
-            debug(error)
-            // TODO - Improve this error throwing - try to follow the mongoose standard
-            throw new Error(error)
+        }
+        else {
+            throw new Error("User not found")
         }
     }
-    return null;
+    else {
+        if (!user) {
+            throw await createCustomError({
+                name: "ValidationError",
+                message: "User must not be null"
+            })
+        } else {
+            let errors = {}
+            if (!user.username) {
+                errors.username = "The username must not be null if you don't provide an email"
+            }
+            if (!user.email) {
+                errors.email = "The email must not be null if you don't provide an user"
+            }
+            if (!accessingThroughOAuth && !password) {
+                errors.password = "You must provide a password as you're not accessing through OAuth"
+            }
+            throw await createCustomError({
+                name: "ValidationError",
+                message: "You must provide, at least, an username or an email. Remember to provide a password if you're not accessing through OAuth"
+            })
+        }
+    }
 }
 
 mongoose.model('User', UserSchema)

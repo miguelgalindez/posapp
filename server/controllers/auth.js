@@ -1,14 +1,26 @@
-//const debug = require('debug')(`server:${__filename}`)
+const debug = require('debug')(`server:${__filename}`)
+const mongoose = require('mongoose')
+let User
 
-const notifyClient = (req, res, user) => {
-    const io = req.app.get("io")
-    const authNameSpace = req.app.get("ioNamespaces").auth.name
-    io.of(authNameSpace).to(`${authNameSpace}#${req.session.socketId}`).emit('userAuthenticated', user)
+const notifyClient = async (req, res, user) => {
+    try {
+        if(!User){
+            User = mongoose.model('User')
+        }
+        user = await User.signUp(user, true)
+        debug("Authenticated user: ")
+        console.dir(user)
+        const io = await req.app.get("io")
+        const authNameSpace = await req.app.get("ioNamespaces").auth.name
+        await io.of(authNameSpace).to(`${authNameSpace}#${req.session.socketId}`).emit('userAuthenticated', user)
 
-    res.status(200).json({
-        action: "Google authentication",
-        status: "OK"
-    })
+        res.status(200).json({
+            action: "Google authentication",
+            status: "OK"
+        })
+    } catch (error) {
+        debug(error)
+    }
 }
 
 exports.handleGoogleCallback = (req, res) => {
