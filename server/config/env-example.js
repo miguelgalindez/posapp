@@ -23,7 +23,8 @@ module.exports={
             reconnectTries: Number.MAX_VALUE,
             reconnectInterval: 3000,
             keepAlive: true,
-            autoIndex: false
+            autoIndex: false,
+            useFindAndModify: false
         }
     }
 }
