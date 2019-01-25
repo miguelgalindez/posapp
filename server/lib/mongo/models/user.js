@@ -115,18 +115,24 @@ UserSchema.pre('save', async function (next) {
     next()
 })
 
-UserSchema.statics.signUp = async function (user, accessingThroughOAuth = false) {
+UserSchema.statics.signWithOAuth = async function (user) {
+    if (user) {
+        // TODO: check if mongoose saves additional properties from those defined by the schema
+        debug("Creating new user who accessed through OAuth")
+        user = await this.findOneAndUpdate({ email: user.email }, { ...user }, { upsert: true, runValidators: true, new: true }).lean()        
+        return await removeSensitiveProperties(user)
+    } else {
+        throw new Error("User must not be null")
+    }
+}
+
+UserSchema.statics.signUp = async function (user) {
     if (user) {
         const foundUser = await this.findByUsernameOrEmail(user.username, user.email)
         if (!foundUser) {
             debug("New user trying to sign up")
             user = await this.create(user)
             return await removeSensitiveProperties(user)
-
-        } else if (accessingThroughOAuth) {
-            // TODO: Improve this to avoid an unnecessary additional query to the database
-            debug("Already registered user trying to sign up through OAuth")
-            return await this.signIn(user.username, user.email, user.password, accessingThroughOAuth)
         }
         else {
             let errors = {};
@@ -151,24 +157,20 @@ UserSchema.statics.signUp = async function (user, accessingThroughOAuth = false)
     }
 }
 
-UserSchema.statics.signIn = async function (username, email, password, accessingThroughOAuth = false) {
-    if (username || email) {
+UserSchema.statics.signIn = async function (username, email, password) {
+    if ((username || email) && password) {
         let user = await this.findByUsernameOrEmail(username, email, true)
         if (user) {
-            if (accessingThroughOAuth) {
-                debug("Trying to authenticate an user who came from OAuth")
-                return email == user.email ? removeSensitiveProperties(user) : null
+            debug("Trying to authenticate an user against their password")
+            if (user.password) {
+                const match = await bcrypt.compare(password, user.password)
+                return match ? removeSensitiveProperties(user) : null
             } else {
-                debug("Trying to authenticate an user against their password")
-                if (password) {
-                    const match = await bcrypt.compare(password, user.password)
-                    return match ? removeSensitiveProperties(user) : null
-                } else {
-                    throw await createCustomError({
-                        name: "UserWithoutPassword",
-                        message: "You don't have a password. You must authenticate through OAuth"
-                    })
-                }
+                throw await createCustomError({
+                    name: "UserWithoutPassword",
+                    message: "Your account doesn't have a password. You must authenticate through OAuth",
+                    // TODO: add oauthProvider property (here and in the app file)
+                })
             }
         }
         else {
@@ -176,30 +178,27 @@ UserSchema.statics.signIn = async function (username, email, password, accessing
         }
     }
     else {
-        if (!user) {
-            throw await createCustomError({
-                name: "ValidationError",
-                message: "User must not be null"
-            })
-        } else {
-            let errors = {}
-            if (!user.username) {
-                errors.username = "The username must not be null if you don't provide an email"
-            }
-            if (!user.email) {
-                errors.email = "The email must not be null if you don't provide an user"
-            }
-            throw await createCustomError({
-                name: "ValidationError",
-                message: "You must provide, at least, an username or an email"
-            })
+        let errors = {}
+        if (!username) {
+            errors.username = "The username must not be null if you don't provide an email"
         }
+        if (!email) {
+            errors.email = "The email must not be null if you don't provide an user"
+        }
+        if (!password) {
+            errors.password = "You must provide a password"
+        }
+        throw await createCustomError({
+            name: "ValidationError",
+            message: "You must provide, at least, an username or an email and a password",
+            errors
+        })
     }
 }
 
 async function removeSensitiveProperties(user) {
     if (user) {
-        user.id = user._id.toHexString()
+        user.id = await user._id.toHexString()
         debug("Deleting sensitive properties ", sensitiveProperties)
         await sensitiveProperties.forEach(sensitiveProperty => {
             delete user[sensitiveProperty]

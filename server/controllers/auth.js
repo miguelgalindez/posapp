@@ -2,20 +2,24 @@ const debug = require('debug')(`server:${__filename}`)
 const mongoose = require('mongoose')
 let User
 
-const notifyClient = async (req, res, user) => {
+// TODO: drop needless debug messages
+
+const userSigning = async (req, res, user) => {
     try {
-        if(!User){
-            User = mongoose.model('User')
+        if (!User) {
+            User = await mongoose.model('User')
         }
-        user = await User.signUp(user, true)
+        user = await User.signWithOAuth(user)
+
         debug("Authenticated user: ")
         console.dir(user)
+
         const io = await req.app.get("io")
         const authNameSpace = await req.app.get("ioNamespaces").auth.name
         await io.of(authNameSpace).to(`${authNameSpace}#${req.session.socketId}`).emit('userAuthenticated', user)
 
-        res.status(200).json({
-            action: "Google authentication",
+        await res.status(200).json({
+            action: "OAuth authentication",
             status: "OK"
         })
     } catch (error) {
@@ -23,29 +27,30 @@ const notifyClient = async (req, res, user) => {
     }
 }
 
-exports.handleGoogleCallback = (req, res) => {
+exports.handleGoogleCallback = async (req, res) => {
     const { displayName, emails, photos } = req.user
     const user = {
         name: displayName,
-        email: emails ? emails.find(email => email.type.toLowerCase() === "account").value : undefined,
-        photo: photos ? photos[0].value : undefined,
-        signedUpWithOauth: true
+        email: emails && emails.length ? emails.find(email => email.type.toLowerCase() === "account").value : undefined,
+        photo: photos && photos.length ? photos[0].value : undefined,
     }
-    notifyClient(req, res, user)
+    await userSigning(req, res, user)
 }
 
-exports.handleFacebookCallback = (req, res) => {
-    notifyClient(req, res, null)
-}
-
-exports.handleGithubCallback = (req, res) => {
+exports.handleGithubCallback = async (req, res) => {
     const { displayName, emails, photos } = req.user
     const user = {
         name: displayName,
-        email: emails ? emails[0].value : undefined,
-        photo: photos ? photos[0].value : undefined,
-        signedUpWithOauth: true
+        email: emails && emails.length ? emails[0].value : undefined,
+        photo: photos && photos.length ? photos[0].value : undefined,
     }
 
-    notifyClient(req, res, user)
+    await userSigning(req, res, user)
+}
+
+// TODO: Implement instagram handler
+
+exports.handleFacebookCallback = async (req, res) => {
+    // TODO: Implement facebook handler
+    await userSigning(req, res, null)
 }

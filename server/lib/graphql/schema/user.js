@@ -28,9 +28,12 @@ module.exports.userTypeDef = `
 module.exports.userResolvers = {
     Query: {
         userFindByEmail: async (parent, args) => {
-            // TODO: looking for the best way to recover a document from a query object.
-            // What happens when find is used rather than findOne and you get many documents            
-            return await User.findByEmail(args.email)
+            // What happens when find is used rather than findOne and you get many documents       
+            try {
+                return await User.findByEmail(args.email)
+            } catch (mongooseError) {
+                throw await createGraphQLErrorFromMongooseError(mongooseError)
+            }
         },
 
         userFindByUsernameOrEmail: async (parent, args) => {
@@ -40,7 +43,7 @@ module.exports.userResolvers = {
                 throw await createGraphQLErrorFromMongooseError(mongooseError)
             }
         },
-        
+
         userSignIn: async (parent, { username, email, password }) => {
             try {
                 return await User.signIn(username, email, password)
