@@ -8,7 +8,7 @@ const debug = require('debug')(`server:${__filename}`)
  * TODO: Find out how to make unique constraint work properly
  * TODO: Define indexes on email and username
  * TODO: Remove needless debug messages
- * TODO: Find out the best approach to follow for aouth signing
+ * TODO: Implement password recovery considering oauth redirection
  */
 
 const userSchemaDef = {
@@ -22,7 +22,6 @@ const userSchemaDef = {
             validator: (value) => /^[a-zA-Z]+[a-zA-Z0-9_-]*$/.test(value),
             message: (props) => `${props.value} is not a valid username. It must start with a letter and it can only have alphanumeric characters and the symbol - and _`
         }
-
     },
 
     email: {
@@ -38,6 +37,9 @@ const userSchemaDef = {
 
     password: {
         type: String,
+        required: function () {
+            return !this.oauthProvider
+        },
         minlength: [6, 'Too short password. It must be, at least, 6 characters in length.'],
         validate: {
             validator: function (value) {
@@ -48,6 +50,13 @@ const userSchemaDef = {
         select: false
     },
 
+    oauthProvider: {
+        type: String,
+        required: function () {
+            return !this.password
+        }
+    },
+
     roles: [String],
 
     name: {
@@ -56,6 +65,7 @@ const userSchemaDef = {
         minlength: [3, 'Too short name. It must be, at least, 3 characters in length'],
         maxlength: [64, 'Too long name. It must be, at most, 64 characters in length']
     },
+
     photo: String
 }
 
@@ -70,23 +80,49 @@ const stringToIncludeSensitiveProperties = sensitiveProperties.reduce((string, p
     return string.concat(`+${property} `)
 }, "")
 
+
 const UserSchema = new Schema(userSchemaDef)
 
+UserSchema.statics.castUserID = async function (user) {
+    if (user && user._id) {
+        user.id = await user._id.toHexString()
+    }
+    return user
+}
+
+UserSchema.statics.removeSensitiveProperties = async function (user) {
+    if (user) {
+        await this.castUserID(user)
+        debug("Deleting sensitive properties ", sensitiveProperties)
+        await sensitiveProperties.forEach(sensitiveProperty => {
+            delete user[sensitiveProperty]
+        })
+    }
+    return user
+}
 
 UserSchema.statics.findByEmail = async function (email, includeSensitiveProperties = false) {
     if (email) {
-        return await this.findOne({
+        let user = await this.findOne({
             email: new RegExp(email, 'i')
         }).select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean()
+
+        return await castUserID(user)
     } else {
         throw await createCustomError({
             name: "ValidationError",
-            message: "You must provide an email"
+            message: "You must provide an email",
+            paths: { email: { message: "You must provide an email" } }
         })
     }
 }
 
 UserSchema.statics.findByUsernameOrEmail = async function (username, email, includeSensitiveProperties = false) {
+    /**
+     * TODO: there's a bug in this query. To reproduce it, create two users without a username and try to
+     * search for the second one and you're going to get the wrong user in the results when you try,
+     * for instace, to execute the call userSignUp
+     */
     if (username || email) {
         return await this.findOne().or([
             { username },
@@ -117,42 +153,54 @@ UserSchema.pre('save', async function (next) {
 
 UserSchema.statics.signWithOAuth = async function (user) {
     if (user) {
-        // TODO: check if mongoose saves additional properties from those defined by the schema
         debug("Creating new user who accessed through OAuth")
-        user = await this.findOneAndUpdate({ email: user.email }, { ...user }, { upsert: true, runValidators: true, new: true }).lean()        
-        return await removeSensitiveProperties(user)
+        user = await this.findOneAndUpdate(
+            { email: user.email },
+            { ...user },
+            { upsert: true, runValidators: true, new: true }).lean()
+
+        return await this.removeSensitiveProperties(user)
     } else {
         throw new Error("User must not be null")
     }
 }
 
 UserSchema.statics.signUp = async function (user) {
-    if (user) {
+    if (user && user.password) {
+        
         const foundUser = await this.findByUsernameOrEmail(user.username, user.email)
         if (!foundUser) {
             debug("New user trying to sign up")
             user = await this.create(user)
-            return await removeSensitiveProperties(user)
+            user = user.toObject({ flattenMaps: true, versionKey: false })
+            return await this.removeSensitiveProperties(user)
         }
         else {
-            let errors = {};
+            let paths = {};
             if (user.username && user.username === foundUser.username) {
-                errors.username = { message: "There is already a registered user with this username" }
+                paths.username = { message: "There is already a registered user with this username" }
             }
             if (user.email && user.email === foundUser.email) {
-                errors.email = { message: "There is already a registered user with this email" }
+                paths.email = { message: "There is already a registered user with this email" }
             }
             throw await createCustomError({
                 name: "ValidationError",
                 message: "There is already a registered user with that username or email",
-                errors
+                paths
             })
         }
-
     } else {
+        let message, paths
+        if (!user) {
+            message = "User must not be null"
+        } else if (!user.password) {
+            message = "You must provide a password"
+            paths = { password: { message: "You must provide a password" } }
+        }
         throw await createCustomError({
             name: "ValidationError",
-            message: "User must not be null"
+            message,
+            paths
         })
     }
 }
@@ -162,49 +210,30 @@ UserSchema.statics.signIn = async function (username, email, password) {
         let user = await this.findByUsernameOrEmail(username, email, true)
         if (user) {
             debug("Trying to authenticate an user against their password")
-            if (user.password) {
-                const match = await bcrypt.compare(password, user.password)
-                return match ? removeSensitiveProperties(user) : null
-            } else {
-                throw await createCustomError({
-                    name: "UserWithoutPassword",
-                    message: "Your account doesn't have a password. You must authenticate through OAuth",
-                    // TODO: add oauthProvider property (here and in the app file)
-                })
-            }
+            const match = await bcrypt.compare(password, user.password)
+            return match ? this.removeSensitiveProperties(user) : null
         }
         else {
             throw new Error("User not found")
         }
     }
     else {
-        let errors = {}
+        let paths = {}
         if (!username) {
-            errors.username = "The username must not be null if you don't provide an email"
+            paths.username = { message: "The username must not be null if you don't provide an email" }
         }
         if (!email) {
-            errors.email = "The email must not be null if you don't provide an user"
+            paths.email = { message: "The email must not be null if you don't provide an user" }
         }
         if (!password) {
-            errors.password = "You must provide a password"
+            paths.password = { message: "You must provide a password" }
         }
         throw await createCustomError({
             name: "ValidationError",
             message: "You must provide, at least, an username or an email and a password",
-            errors
+            paths
         })
     }
-}
-
-async function removeSensitiveProperties(user) {
-    if (user) {
-        user.id = await user._id.toHexString()
-        debug("Deleting sensitive properties ", sensitiveProperties)
-        await sensitiveProperties.forEach(sensitiveProperty => {
-            delete user[sensitiveProperty]
-        })
-    }
-    return user
 }
 
 mongoose.model('User', UserSchema)

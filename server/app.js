@@ -57,9 +57,7 @@ app.use('/graphql', graphql({
     name: error.name,
     type: error.originalError && error.originalError.type,
     message: error.message,
-    fields: error.originalError && error.originalError.fields,
-    path: error.path
-
+    paths: error.originalError && error.originalError.paths
   })
 }))
 

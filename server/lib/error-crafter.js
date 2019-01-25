@@ -17,7 +17,9 @@ module.exports.createCustomError = async errorProperties => {
         }
 
         await Object.keys(errorProperties).forEach(property => {
-            error[property] = errorProperties[property]
+            if (errorProperties[property]) {
+                error[property] = errorProperties[property]
+            }
         })
         return error
     }
@@ -28,7 +30,7 @@ module.exports.createCustomError = async errorProperties => {
  * Creates a GraphQLError from an error thrown by a mongoose model.
  * It's useful to re-throw an mongoose error as a GraphQLError, 
  * in order to send a detailed response to the graphql client, displaying, 
- * for example, the fields in which errors were triggered
+ * for example, the paths in which errors were triggered
  * @param {Error} mongooseError Error thrown by a mongoose model
  * @returns {GraphQLError} Translated error ready to be thrown
  *                  
@@ -37,13 +39,13 @@ module.exports.createGraphQLErrorFromMongooseError = async mongooseError => {
     let error = new GraphQLError()
     error.type = mongooseError.name
     error.message = mongooseError.message
-    if (mongooseError.hasOwnProperty("errors")) {
-        error.fields = await Object.keys(mongooseError.errors).reduce((fields, errorKey) => {
-            fields[errorKey] = {
-                message: mongooseError.errors[errorKey].message,
-                value: mongooseError.errors[errorKey].value
+    if (mongooseError.hasOwnProperty("paths")) {
+        error.paths = await Object.keys(mongooseError.paths).reduce((paths, errorKey) => {
+            paths[errorKey] = {
+                message: mongooseError.paths[errorKey].message,
+                value: mongooseError.paths[errorKey].value
             }
-            return fields
+            return paths
         }, {})
     }
     return error

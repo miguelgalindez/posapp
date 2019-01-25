@@ -19,7 +19,7 @@ const userSigning = async (req, res, user) => {
         await io.of(authNameSpace).to(`${authNameSpace}#${req.session.socketId}`).emit('userAuthenticated', user)
 
         await res.status(200).json({
-            action: "OAuth authentication",
+            action: "OAuth process",
             status: "OK"
         })
     } catch (error) {
@@ -33,6 +33,7 @@ exports.handleGoogleCallback = async (req, res) => {
         name: displayName,
         email: emails && emails.length ? emails.find(email => email.type.toLowerCase() === "account").value : undefined,
         photo: photos && photos.length ? photos[0].value : undefined,
+        oauthProvider: "google"
     }
     await userSigning(req, res, user)
 }
@@ -43,6 +44,7 @@ exports.handleGithubCallback = async (req, res) => {
         name: displayName,
         email: emails && emails.length ? emails[0].value : undefined,
         photo: photos && photos.length ? photos[0].value : undefined,
+        oauthProvider: "github"
     }
 
     await userSigning(req, res, user)

@@ -9,15 +9,16 @@ module.exports.userTypeDef = `
         username: String
         email: String
         password: String
+        oauthProvider: String
         roles: [String]
         name: String
         photo: String
     }
 
     extend type Query {
-        userFindByEmail(email: String!): User
+        userFindByEmail(email: String): User
         userFindByUsernameOrEmail(username: String email: String): User
-        userSignIn(username: String, email: String, password: String!): User
+        userSignIn(username: String, email: String, password: String): User
     }
 
     extend type Mutation {
