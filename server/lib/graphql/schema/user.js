@@ -5,7 +5,7 @@ const { createGraphQLErrorFromMongooseError } = require('../../error-crafter')
 
 module.exports.userTypeDef = `
     type User {
-        id: ID!
+        id: ID
         username: String
         email: String
         password: String

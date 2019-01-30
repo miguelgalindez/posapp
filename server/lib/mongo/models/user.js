@@ -107,7 +107,7 @@ UserSchema.statics.findByEmail = async function (email, includeSensitiveProperti
             email: new RegExp(email, 'i')
         }).select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean()
 
-        return await castUserID(user)
+        return await this.castUserID(user)
     } else {
         throw await createCustomError({
             name: "ValidationError",
@@ -124,11 +124,29 @@ UserSchema.statics.findByUsernameOrEmail = async function (username, email, incl
      * for instace, to execute the call userSignUp
      */
     if (username || email) {
-        return await this.findOne().or([
-            { username },
-            { email }
-        ]).select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean()
-    } else {
+        let query, usersCounter
+        if (username) {
+            debug("Building query based on username...")
+            query = this.findOne().where({ username })
+            const clone=query
+            
+            usersCounter = await clone.countDocuments()
+            //query = this.findOne().where({ username })
+            //usersCounter = 1
+            debug(usersCounter)
+            
+        }
+        if (!usersCounter && email) {
+            debug("Building query based on email...")
+            query = this.findOne().where({ email })
+        }
+        query.select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean().exec((err, user)=>{
+            console.dir(user)
+            return this.castUserID(user)
+        })
+        
+    }
+    else {
         throw await createCustomError({
             name: "ValidationError",
             message: "You must provide, at least, an username or an email"
@@ -167,7 +185,7 @@ UserSchema.statics.signWithOAuth = async function (user) {
 
 UserSchema.statics.signUp = async function (user) {
     if (user && user.password) {
-        
+
         const foundUser = await this.findByUsernameOrEmail(user.username, user.email)
         if (!foundUser) {
             debug("New user trying to sign up")
