@@ -69,11 +69,11 @@ const userSchemaDef = {
     photo: String
 }
 
-const sensitiveProperties = Object.keys(userSchemaDef).reduce((properties, property) => {
+const sensitiveProperties = Object.keys(userSchemaDef).reduce((accumulator, property) => {
     if (userSchemaDef[property].select === false) {
-        properties.push(property)
+        accumulator.push(property)
     }
-    return properties
+    return accumulator
 }, ["_id", "__v"])
 
 const stringToIncludeSensitiveProperties = sensitiveProperties.reduce((string, property) => {
@@ -86,14 +86,15 @@ const UserSchema = new Schema(userSchemaDef)
 UserSchema.statics.castUserID = async function (user) {
     if (user && user._id) {
         user.id = await user._id.toHexString()
+        await delete user._id
     }
     return user
 }
 
 UserSchema.statics.removeSensitiveProperties = async function (user) {
     if (user) {
+        // TODO: Test if castUserID method modify the same object 
         await this.castUserID(user)
-        debug("Deleting sensitive properties ", sensitiveProperties)
         await sensitiveProperties.forEach(sensitiveProperty => {
             delete user[sensitiveProperty]
         })
@@ -101,13 +102,21 @@ UserSchema.statics.removeSensitiveProperties = async function (user) {
     return user
 }
 
+UserSchema.statics.findOneByFilter = async function (filter, includeSensitiveProperties = false) {
+    if (filter && typeof filter === 'object') {
+        let user = await this.findOne(filter).select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean()
+        return await this.castUserID(user)
+    } else {
+        throw await createCustomError({
+            name: "ValidationError",
+            message: "You must provide a filter for the query"
+        })
+    }
+}
+
 UserSchema.statics.findByEmail = async function (email, includeSensitiveProperties = false) {
     if (email) {
-        let user = await this.findOne({
-            email: new RegExp(email, 'i')
-        }).select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean()
-
-        return await this.castUserID(user)
+        return await this.findOneByFilter({ email }, includeSensitiveProperties)
     } else {
         throw await createCustomError({
             name: "ValidationError",
@@ -118,33 +127,15 @@ UserSchema.statics.findByEmail = async function (email, includeSensitiveProperti
 }
 
 UserSchema.statics.findByUsernameOrEmail = async function (username, email, includeSensitiveProperties = false) {
-    /**
-     * TODO: there's a bug in this query. To reproduce it, create two users without a username and try to
-     * search for the second one and you're going to get the wrong user in the results when you try,
-     * for instace, to execute the call userSignUp
-     */
     if (username || email) {
-        let query, usersCounter
+        let user
         if (username) {
-            debug("Building query based on username...")
-            query = this.findOne().where({ username })
-            const clone=query
-            
-            usersCounter = await clone.countDocuments()
-            //query = this.findOne().where({ username })
-            //usersCounter = 1
-            debug(usersCounter)
-            
+            user = await this.findOneByFilter({ username }, includeSensitiveProperties)
         }
-        if (!usersCounter && email) {
-            debug("Building query based on email...")
-            query = this.findOne().where({ email })
+        if (!user && email) {
+            user = await this.findOneByFilter({ email }, includeSensitiveProperties)
         }
-        query.select(includeSensitiveProperties ? stringToIncludeSensitiveProperties : undefined).lean().exec((err, user)=>{
-            console.dir(user)
-            return this.castUserID(user)
-        })
-        
+        return user
     }
     else {
         throw await createCustomError({
