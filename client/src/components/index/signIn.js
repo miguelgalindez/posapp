@@ -1,15 +1,32 @@
 import React, { Component, Fragment } from "react"
 import { Link } from "react-router-dom";
-import { InputAdornment, Button, TextField, Typography } from "@material-ui/core"
+import { Button, Typography } from "@material-ui/core"
 import OAuth from "./oAuth";
 import { AccountCircle, Lock } from "@material-ui/icons"
 import { withStyles } from "@material-ui/core/styles"
 import LoginStyles from "./styles"
-import { Divider } from "../utils";
+import { Divider, Input } from "../utils";
 
 const styles = theme => LoginStyles(theme)
 
 class SignIn extends Component {
+
+    state = {
+        paths: {
+            usernameOrEmail: undefined,
+            password: undefined
+        }
+    }
+
+    handleChange = (path, value) => {
+        const paths = {
+            ...this.state.paths,
+            [path]: value
+        }
+
+        this.setState({ paths })
+    }
+
     render() {
         const { classes, socket } = this.props
         const oAuthHeader = <Typography variant="h6" gutterBottom>Connect with</Typography>
@@ -27,32 +44,24 @@ class SignIn extends Component {
                 }
                 <form
                     className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
-                    <TextField
-                        label="Username"
-                        variant="outlined"
+                    <Input
+                        name="usernameEmail"
+                        label="Username or Email"
+                        type="text"
+                        //value={this.state.paths.usernameOrEmail}                        
+                        onChange={this.handleChange}
                         className={classes.formField}
-
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <AccountCircle className={classes.formFieldIcon} />
-                                </InputAdornment>
-                            )
-                        }}
+                        icon={<AccountCircle className={classes.formFieldIcon} />}
                     />
 
-                    <TextField
+                    <Input
+                        name="password"
                         label="Password"
-                        variant="outlined"
                         type="password"
+                        //value={this.state.paths.password}                        
+                        onChange={this.handleChange}
                         className={classes.formField}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <Lock className={classes.formFieldIcon} />
-                                </InputAdornment>
-                            )
-                        }}
+                        icon={<Lock className={classes.formFieldIcon} />}
                     />
 
 

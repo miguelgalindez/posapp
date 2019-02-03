@@ -17,7 +17,7 @@ const userSchemaDef = {
         required: function () {
             return !this.email
         },
-        maxlength: [24, 'Too long value for username. The max length allowed for this field is 24 characters'],
+        maxlength: [32, 'Too long value for username. The max length allowed for this field is {MAXLENGTH} characters'],
         validate: {
             validator: (value) => /^[a-zA-Z]+[a-zA-Z0-9_-]*$/.test(value),
             message: (props) => `${props.value} is not a valid username. It must start with a letter and it can only have alphanumeric characters and the symbol - and _`
@@ -40,10 +40,12 @@ const userSchemaDef = {
         required: function () {
             return !this.oauthProvider
         },
-        minlength: [6, 'Too short password. It must be, at least, 6 characters in length.'],
+        minlength: [6, 'Too short password. It must be, at least, {MINLENGTH} characters in length.'],
         validate: {
             validator: function (value) {
-                return value != this.username && value !== this.email
+                const differentFromUsername = !value || !this.username || this.username.toLowerCase() !== value.toLowerCase()
+                const differentFromEmail = !value || !this.email || this.email.toLowerCase() !== value.toLowerCase()
+                return differentFromUsername && differentFromEmail
             },
             message: () => "The password can't be the same as the username nor the email"
         },
@@ -62,8 +64,8 @@ const userSchemaDef = {
     name: {
         type: String,
         required: true,
-        minlength: [3, 'Too short name. It must be, at least, 3 characters in length'],
-        maxlength: [64, 'Too long name. It must be, at most, 64 characters in length']
+        minlength: [3, 'Too short name. It must be, at least, {MINLENGTH} characters in length'],
+        maxlength: [64, 'Too long name. It must be, at most, {MAXLENGTH} characters in length']
     },
 
     photo: String

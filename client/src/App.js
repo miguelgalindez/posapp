@@ -1,15 +1,24 @@
 import React, { Component, Fragment } from 'react';
 import { BrowserRouter } from "react-router-dom";
-import Login from "./components/login"
+import Index from "./components/index"
+import Home from "./components/home"
 import { CssBaseline } from "@material-ui/core";
 
 class App extends Component {
+
+  state = {
+    user: null
+  }
+
   render() {
     return (
       <BrowserRouter>
         <Fragment>
           <CssBaseline />
-          <Login />
+          { this.state.user 
+            ? <Home user={this.state.user} /> 
+            : <Index />
+          }
         </Fragment>
       </BrowserRouter>
     );
