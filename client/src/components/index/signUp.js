@@ -55,7 +55,10 @@ class SignUp extends Component {
                     </Typography>
                 </div>
 
-                <form className={classes.form}>
+                <form
+                    className={classes.form}
+                    autoComplete="off"
+                >
                     <Input
                         name="name"
                         label="Full name"

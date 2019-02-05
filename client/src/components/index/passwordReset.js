@@ -44,7 +44,10 @@ class PasswordReset extends Component {
                             Enter your username or email and we'll send you a link to get back into your account.
                     </Typography>
                     </div>
-                    <form className={`${classes.centeredFlex} ${classes.form}`}>
+                    <form
+                        className={`${classes.centeredFlex} ${classes.form}`}
+                        autoComplete="off"
+                    >
                         <Input
                             name="usernameOrEmail"
                             label="Username or email"

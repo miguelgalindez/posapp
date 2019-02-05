@@ -44,7 +44,9 @@ class SignIn extends Component {
                     : null
                 }
                 <form
-                    className={`${classes.centeredFlex} ${classes.form}`} autoComplete="off">
+                    className={`${classes.centeredFlex} ${classes.form}`}
+                    autoComplete="off"
+                >
                     <Input
                         name="usernameEmail"
                         label="Username or Email"
