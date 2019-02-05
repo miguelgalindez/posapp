@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { InputAdornment, TextField, IconButton } from "@material-ui/core"
 import {
@@ -38,8 +38,8 @@ class Input extends Component {
         const { validate, onChange } = this.props
         const error = validate ? validate(value) : null
         this.setState({ value })
-        onChange(name, value)                                    
-        this.setState({ error })        
+        onChange(name, value)
+        this.setState({ error })
     }
 
     handleTogglePasswordVisibility = () => {
@@ -53,37 +53,39 @@ class Input extends Component {
         const { name, label, type, children, className, icon } = this.props
         const { passwordVisibility } = this.state
         return (
-            <TextField
-                inputRef={this.ref}
-                name={name}
-                id={name}
-                value={this.state.value}
-                onChange={this.handleInputChange}
-                label={label}
-                error={Boolean(this.state.error)}
-                errortext={this.state.error}
-                type={type === 'password' ? (passwordVisibility ? 'text' : 'password') : type}
-                variant="outlined"
-                className={className}
-                InputProps={icon || type === 'password'
-                    ? {
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                {type === 'password'
-                                    ? <IconButton onClick={this.handleTogglePasswordVisibility}>
-                                        {passwordVisibility ? <Visibility /> : <VisibilityOff />}
-                                    </IconButton>
-                                    : undefined
-                                }
-                                {icon}
-                            </InputAdornment>
-                        )
+            <Fragment>
+                <TextField
+                    inputRef={this.ref}
+                    name={name}
+                    id={name}
+                    value={this.state.value}
+                    onChange={this.handleInputChange}
+                    label={label}
+                    error={Boolean(this.state.error)}
+                    helperText={this.state.error ? this.state.error : undefined}
+                    type={type === 'password' ? (passwordVisibility ? 'text' : 'password') : type}
+                    variant="outlined"
+                    className={className}
+                    InputProps={icon || type === 'password'
+                        ? {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    {type === 'password'
+                                        ? <IconButton onClick={this.handleTogglePasswordVisibility}>
+                                            {passwordVisibility ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                        : undefined
+                                    }
+                                    {icon}
+                                </InputAdornment>
+                            )
+                        }
+                        : undefined
                     }
-                    : undefined
-                }
-            >
-                {children}
-            </TextField>
+                >
+                    {children}
+                </TextField>
+            </Fragment>
         )
     }
 }

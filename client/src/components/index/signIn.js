@@ -5,7 +5,8 @@ import OAuth from "./oAuth";
 import { AccountCircle, Lock } from "@material-ui/icons"
 import { withStyles } from "@material-ui/core/styles"
 import LoginStyles from "./styles"
-import { Divider, Input } from "../utils";
+import { Divider, Input, Validators } from "../utils";
+const { CommonValidators } = Validators
 
 const styles = theme => LoginStyles(theme)
 
@@ -48,7 +49,8 @@ class SignIn extends Component {
                         name="usernameEmail"
                         label="Username or Email"
                         type="text"
-                        //value={this.state.paths.usernameOrEmail}                        
+                        //value={this.state.paths.usernameOrEmail}
+                        validate={CommonValidators.validateRequired()}
                         onChange={this.handleChange}
                         className={classes.formField}
                         icon={<AccountCircle className={classes.formFieldIcon} />}
@@ -58,7 +60,8 @@ class SignIn extends Component {
                         name="password"
                         label="Password"
                         type="password"
-                        //value={this.state.paths.password}                        
+                        //value={this.state.paths.password}
+                        validate={CommonValidators.validateRequired()}
                         onChange={this.handleChange}
                         className={classes.formField}
                         icon={<Lock className={classes.formFieldIcon} />}

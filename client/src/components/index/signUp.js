@@ -16,9 +16,8 @@ import {
     Lock
 } from "@material-ui/icons";
 
-import { Input } from "../utils";
-import { UserValidator } from "../../validators";
-
+import { Input, Validators } from "../utils";
+const { UserValidator } = Validators
 
 const styles = theme => LoginStyles(theme)
 
