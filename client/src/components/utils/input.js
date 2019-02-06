@@ -6,9 +6,6 @@ import {
     VisibilityOff
 } from "@material-ui/icons";
 
-// TODO: init state based on value from props (include error init)
-// TODO: check propTypes is working
-// FIXME: style problems with autocomplete on input text fields
 class Input extends Component {
 
     static propTypes = {
@@ -25,12 +22,15 @@ class Input extends Component {
     constructor(props) {
         super(props)
         this.ref = React.createRef()
+        this.state = {
+            value: "",
+            error: "",
+            passwordVisibility: false
+        }
     }
 
-    state = {
-        value: "",
-        error: null,
-        passwordVisibility: false
+    componentDidMount() {
+        this.setState({ value: this.props.value })
     }
 
     handleInputChange = evt => {
@@ -62,7 +62,7 @@ class Input extends Component {
                     onChange={this.handleInputChange}
                     label={label}
                     error={Boolean(this.state.error)}
-                    helperText={this.state.error ? this.state.error : undefined}
+                    helperText={this.state.error}
                     type={type === 'password' ? (passwordVisibility ? 'text' : 'password') : type}
                     variant="outlined"
                     className={className}

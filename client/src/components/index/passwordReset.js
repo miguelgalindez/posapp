@@ -5,10 +5,8 @@ import {
     Typography,
     Button
 } from "@material-ui/core";
-import {
-    LockOutlined
-} from "@material-ui/icons";
 
+import { LockOutlined } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 import LoginStyles from "./styles"
 import { Divider, Input, Validators } from "../utils";
