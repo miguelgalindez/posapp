@@ -9,7 +9,12 @@ const debug = require('debug')(`server:${__filename}`)
  * TODO: Define indexes on email and username
  * TODO: Remove needless debug messages
  * TODO: Implement password recovery considering oauth redirection
+ * TODO: Remove "User not found" message when the user are trying 
+ *          to sign in
  */
+
+const userPattern = /^[a-zA-Z]+[a-zA-Z0-9_-]*$/
+const emailPattern = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[a-zA-Z]{2}|com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum)$/
 
 const userSchemaDef = {
     username: {
@@ -19,7 +24,7 @@ const userSchemaDef = {
         },
         maxlength: [32, 'Too long value for username. The max length allowed for this field is {MAXLENGTH} characters'],
         validate: {
-            validator: (value) => /^[a-zA-Z]+[a-zA-Z0-9_-]*$/.test(value),
+            validator: (value) => userPattern.test(value),
             message: (props) => `${props.value} is not a valid username. It must start with a letter and it can only have alphanumeric characters and the symbol - and _`
         }
     },
@@ -30,7 +35,7 @@ const userSchemaDef = {
             return !this.username
         },
         validate: {
-            validator: (value) => /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[a-zA-Z]{2}|com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum)$/.test(value),
+            validator: (value) => emailPattern.test(value),
             message: (props) => `${props.value} is not a valid email.`
         }
     },
@@ -123,26 +128,42 @@ UserSchema.statics.findByEmail = async function (email, includeSensitiveProperti
         throw await createCustomError({
             name: "ValidationError",
             message: "You must provide an email",
-            paths: { email: { message: "You must provide an email" } }
+            errors: { email: { message: "You must provide an email" } }
         })
     }
 }
 
-UserSchema.statics.findByUsernameOrEmail = async function (username, email, includeSensitiveProperties = false) {
-    if (username || email) {
+UserSchema.statics.findByUsername = async function (username, includeSensitiveProperties = false) {
+    if (username) {
+        return await this.findOneByFilter({ username }, includeSensitiveProperties)
+    } else {
+        throw await createCustomError({
+            name: "ValidationError",
+            message: "You must provide an username",
+            errors: { username: { message: "You must provide an username" } }
+        })
+    }
+}
+
+
+UserSchema.statics.findByUsernameOrEmail = async function (usernameOrEmail, includeSensitiveProperties = false) {
+    const isValidEmail = emailPattern.test(usernameOrEmail)
+    const isValidUsername = userPattern.test(usernameOrEmail)
+
+    if (isValidEmail || isValidUsername) {
         let user
-        if (username) {
-            user = await this.findOneByFilter({ username }, includeSensitiveProperties)
-        }
-        if (!user && email) {
-            user = await this.findOneByFilter({ email }, includeSensitiveProperties)
+        if (isValidEmail) {
+            user = await this.findOneByFilter({ email: usernameOrEmail }, includeSensitiveProperties)
+        } else {
+            user = await this.findOneByFilter({ username: usernameOrEmail }, includeSensitiveProperties)
         }
         return user
     }
     else {
         throw await createCustomError({
             name: "ValidationError",
-            message: "You must provide, at least, an username or an email"
+            message: "You must provide a valid username or email",
+            errors: { usernameOrEmail: { message: "You must provide a valid username or email" } }
         })
     }
 }
@@ -178,8 +199,7 @@ UserSchema.statics.signWithOAuth = async function (user) {
 
 UserSchema.statics.signUp = async function (user) {
     if (user && user.password) {
-
-        const foundUser = await this.findByUsernameOrEmail(user.username, user.email)
+        const foundUser = await this.findByUsernameOrEmail(user.username) || await this.findByUsernameOrEmail(user.email)
         if (!foundUser) {
             debug("New user trying to sign up")
             user = await this.create(user)
@@ -187,38 +207,38 @@ UserSchema.statics.signUp = async function (user) {
             return await this.removeSensitiveProperties(user)
         }
         else {
-            let paths = {};
+            let errors = {};
             if (user.username && user.username === foundUser.username) {
-                paths.username = { message: "There is already a registered user with this username" }
+                errors.username = { message: "There is already a registered user with this username" }
             }
             if (user.email && user.email === foundUser.email) {
-                paths.email = { message: "There is already a registered user with this email" }
+                errors.email = { message: "There is already a registered user with this email" }
             }
             throw await createCustomError({
                 name: "ValidationError",
                 message: "There is already a registered user with that username or email",
-                paths
+                errors
             })
         }
     } else {
-        let message, paths
+        let message, errors
         if (!user) {
             message = "User must not be null"
         } else if (!user.password) {
             message = "You must provide a password"
-            paths = { password: { message: "You must provide a password" } }
+            errors = { password: { message: "You must provide a password" } }
         }
         throw await createCustomError({
             name: "ValidationError",
             message,
-            paths
+            errors
         })
     }
 }
 
-UserSchema.statics.signIn = async function (username, email, password) {
-    if ((username || email) && password) {
-        let user = await this.findByUsernameOrEmail(username, email, true)
+UserSchema.statics.signIn = async function (usernameOrEmail, password) {
+    if (usernameOrEmail && password) {
+        let user = await this.findByUsernameOrEmail(usernameOrEmail, true)
         if (user) {
             debug("Trying to authenticate an user against their password")
             const match = await bcrypt.compare(password, user.password)
@@ -229,20 +249,18 @@ UserSchema.statics.signIn = async function (username, email, password) {
         }
     }
     else {
-        let paths = {}
-        if (!username) {
-            paths.username = { message: "The username must not be null if you don't provide an email" }
+        let errors = {}
+        if (!usernameOrEmail) {
+            errors.usernameOrEmail = { message: "You must provide a valid username or email" }
         }
-        if (!email) {
-            paths.email = { message: "The email must not be null if you don't provide an user" }
-        }
+
         if (!password) {
-            paths.password = { message: "You must provide a password" }
+            errors.password = { message: "You must provide a password" }
         }
         throw await createCustomError({
             name: "ValidationError",
-            message: "You must provide, at least, an username or an email and a password",
-            paths
+            message: "You must provide, at least, an username/email and a password",
+            errors
         })
     }
 }

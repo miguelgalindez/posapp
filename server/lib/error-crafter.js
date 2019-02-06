@@ -39,13 +39,13 @@ module.exports.createGraphQLErrorFromMongooseError = async mongooseError => {
     let error = new GraphQLError()
     error.type = mongooseError.name
     error.message = mongooseError.message
-    if (mongooseError.hasOwnProperty("paths")) {
-        error.paths = await Object.keys(mongooseError.paths).reduce((paths, errorKey) => {
-            paths[errorKey] = {
-                message: mongooseError.paths[errorKey].message,
-                value: mongooseError.paths[errorKey].value
+    if (mongooseError.hasOwnProperty("errors")) {
+        error.paths = await Object.keys(mongooseError.errors).reduce((errors, errorKey) => {
+            errors[errorKey] = {
+                message: mongooseError.errors[errorKey].message,
+                value: mongooseError.errors[errorKey].value
             }
-            return paths
+            return errors
         }, {})
     }
     return error

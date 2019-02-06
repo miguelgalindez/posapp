@@ -50,7 +50,7 @@ app.use('/auth', authRouter)
  * Setting up graphql
 */
 const graphqlSchema=require('./lib/graphql/schema')
-app.use('/graphql', graphql({
+app.use('/graphql/index', graphql({
   graphiql: true,
   schema: graphqlSchema,
   formatError: error => ({

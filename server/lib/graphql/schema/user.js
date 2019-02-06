@@ -17,8 +17,8 @@ module.exports.userTypeDef = `
 
     extend type Query {
         userFindByEmail(email: String): User
-        userFindByUsernameOrEmail(username: String email: String): User
-        userSignIn(username: String, email: String, password: String): User
+        userFindByUsernameOrEmail(usernameOrEmail: String): User
+        userSignIn(usernameOrEmail: String, password: String): User
     }
 
     extend type Mutation {
@@ -29,7 +29,6 @@ module.exports.userTypeDef = `
 module.exports.userResolvers = {
     Query: {
         userFindByEmail: async (parent, args) => {
-            // What happens when find is used rather than findOne and you get many documents       
             try {
                 return await User.findByEmail(args.email)
             } catch (mongooseError) {
@@ -37,17 +36,17 @@ module.exports.userResolvers = {
             }
         },
 
-        userFindByUsernameOrEmail: async (parent, args) => {
+        userFindByUsernameOrEmail: async (parent, {usernameOrEmail}) => {
             try {
-                return await User.findByUsernameOrEmail(args.username, args.email)
+                return await User.findByUsernameOrEmail(usernameOrEmail)
             } catch (mongooseError) {
                 throw await createGraphQLErrorFromMongooseError(mongooseError)
             }
         },
 
-        userSignIn: async (parent, { username, email, password }) => {
+        userSignIn: async (parent, { usernameOrEmail, password }) => {
             try {
-                return await User.signIn(username, email, password)
+                return await User.signIn(usernameOrEmail, password)
             } catch (mongooseError) {
                 throw await createGraphQLErrorFromMongooseError(mongooseError)
             }
